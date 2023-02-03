@@ -64,10 +64,20 @@ class MyHomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final counter = ref.watch(counterProvider);
     return Scaffold(
+      // appBar: AppBar(
+      //   title: const Text('Home Page'),
+      // ),
+
       appBar: AppBar(
-        title: const Text('Home Page'),
+        title: Consumer(
+          builder: (context, ref, child) {
+            final counter = ref.watch(counterProvider);
+            final text =
+                counter == null ? 'Press the button' : counter.toString();
+            return Text(text);
+          },
+        ),
       ),
       body: Column(
         children: [
