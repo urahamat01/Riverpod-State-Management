@@ -59,11 +59,56 @@ class MyApp extends StatelessWidget {
   }
 }
 
+enum City {
+  stockholm,
+  paris,
+  tokyo,
+}
+
+Future<String> getWeather(City city) {
+  return Future.delayed(
+    const Duration(seconds: 1),
+    () =>
+        {
+          City.stockholm: 'Stock',
+          City.paris: 'Pari',
+          City.tokyo: 'Toky',
+        }[city] ??
+        '?',
+  );
+}
+
+final myProvider = Provider((_) => DateTime.now());
+
+//Will be changed by the UI writes to this
+final currentCityProvider = StateProvider<City?>(
+  (ref) => null,
+);
+
+const unknownWeatherEmoji = 'Unknown';
+
+//UI reads this
+final weatherProvider = FutureProvider<dynamic>(
+  (ref) {
+    final city = ref.watch(currentCityProvider);
+    if (city != null) {
+      return getWeather(city);
+    } else {
+      return unknownWeatherEmoji;
+    }
+  },
+);
+
+class WeatherEmoji {}
+
 class MyHomePage extends ConsumerWidget {
   const MyHomePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final currentWeather = ref.watch(
+      weatherProvider,
+    );
     return Scaffold(
       // appBar: AppBar(
       //   title: const Text('Home Page'),
@@ -84,6 +129,40 @@ class MyHomePage extends ConsumerWidget {
           TextButton(
             onPressed: ref.read(counterProvider.notifier).increment,
             child: const Text('Increment Counter'),
+          ),
+
+//          currentWeather.when(data: (data) => Text(data, style:  TextStyle(fontFamily: 23),), error: (Object error, StackTrace stackTrace) {  }, )
+
+          currentWeather.when(
+            data: (data) => Text(
+              data,
+              style: const TextStyle(),
+            ),
+            //error: (Object) => Text('data'),
+            //error: (dynamic) =>  Text('Error ????'),
+            loading: () => const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: CircularProgressIndicator(),
+            ),
+            error: (Object error, StackTrace stackTrace) => Text('Error ??'),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: City.values.length,
+              itemBuilder: (context, index) {
+                final city = City.values[index];
+                final isSelected = city == ref.watch(currentCityProvider);
+
+                return ListTile(
+                  title: Text(
+                    city.toString(),
+                  ),
+                  trailing: isSelected ? const Icon(Icons.check) : null,
+                  onTap: () =>
+                      ref.read(currentCityProvider.notifier,).state = city,
+                );
+              },
+            ),
           ),
         ],
       ),
