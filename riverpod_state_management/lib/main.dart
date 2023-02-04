@@ -1,8 +1,10 @@
+import 'dart:collection';
 import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:uuid/uuid.dart';
 
 void main() {
   runApp(
@@ -54,8 +56,53 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(),
+      home: const Example5(),
     );
+  }
+}
+
+@immutable
+class Person {
+  final String name;
+  final int age;
+  final String uuid;
+
+  const Person({
+    required this.name,
+    required this.age,
+    String? uuid,
+  }) : uuid = uuid ?? const Uuid().v4();
+
+  Person updated([String? name, int? age]) => Person(
+        name: name ?? this.name,
+        age: age ?? this.age,
+        uuid: uuid,
+      );
+
+  String get displayName => '$name ($age years old';
+
+  @override
+  bool operator ==(covariant Person other) => uuid == other.uuid;
+}
+
+class DataModel extends ChangeNotifier {
+  final List<Person> _person = [];
+  int get count => _person.length;
+
+  UnmodifiableListView<Person> get person => UnmodifiableListView(_person);
+}
+
+class Example5 extends StatefulWidget {
+  const Example5({Key? key}) : super(key: key);
+
+  @override
+  State<Example5> createState() => _Example5State();
+}
+
+class _Example5State extends State<Example5> {
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
   }
 }
 
