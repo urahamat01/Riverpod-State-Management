@@ -99,7 +99,34 @@ final weatherProvider = FutureProvider<dynamic>(
   },
 );
 
-class WeatherEmoji {}
+const names = [
+  'Alice',
+  'Bob',
+  'Charlie',
+  'David',
+  'Eve',
+  'Fred',
+  'Ginny',
+  'Harriet',
+  'Ileana',
+  'Kincaid',
+  'Larry',
+];
+final tickerProvider = StreamProvider(
+  (ref) => Stream.periodic(
+    const Duration(seconds: 1),
+    (i) => i + 1,
+  ),
+);
+
+final namesProvider = StreamProvider(
+  (ref) => ref.watch(tickerProvider.stream).map(
+        (event) => names.getRange(
+          0,
+          event,
+        ),
+      ),
+);
 
 class MyHomePage extends ConsumerWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -110,62 +137,67 @@ class MyHomePage extends ConsumerWidget {
       weatherProvider,
     );
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text('Home Page'),
-      // ),
+        // appBar: AppBar(
+        //   title: const Text('Home Page'),
+        // ),
 
-      appBar: AppBar(
-        title: Consumer(
-          builder: (context, ref, child) {
-            final counter = ref.watch(counterProvider);
-            final text =
-                counter == null ? 'Press the button' : counter.toString();
-            return Text(text);
-          },
+        appBar: AppBar(
+          title: Consumer(
+            builder: (context, ref, child) {
+              final counter = ref.watch(counterProvider);
+              final text =
+                  counter == null ? 'Press the button' : counter.toString();
+              return Text(text);
+            },
+          ),
         ),
-      ),
-      body: Column(
-        children: [
-          TextButton(
-            onPressed: ref.read(counterProvider.notifier).increment,
-            child: const Text('Increment Counter'),
-          ),
+//Example 3
+//       body: Column(
+//         children: [
+//           TextButton(
+//             onPressed: ref.read(counterProvider.notifier).increment,
+//             child: const Text('Increment Counter'),
+//           ),
+//
+// //          currentWeather.when(data: (data) => Text(data, style:  TextStyle(fontFamily: 23),), error: (Object error, StackTrace stackTrace) {  }, )
+//
+//           currentWeather.when(
+//             data: (data) => Text(
+//               data,
+//               style: const TextStyle(),
+//             ),
+//             //error: (Object) => Text('data'),
+//             //error: (dynamic) =>  Text('Error ????'),
+//             loading: () => const Padding(
+//               padding: EdgeInsets.all(8.0),
+//               child: CircularProgressIndicator(),
+//             ),
+//             error: (Object error, StackTrace stackTrace) => Text('Error ??'),
+//           ),
+//           Expanded(
+//             child: ListView.builder(
+//               itemCount: City.values.length,
+//               itemBuilder: (context, index) {
+//                 final city = City.values[index];
+//                 final isSelected = city == ref.watch(currentCityProvider);
+//
+//                 return ListTile(
+//                   title: Text(
+//                     city.toString(),
+//                   ),
+//                   trailing: isSelected ? const Icon(Icons.check) : null,
+//                   onTap: () =>
+//                       ref.read(currentCityProvider.notifier,).state = city,
+//                 );
+//               },
+//             ),
+//           ),
+//         ],
+//       ),
 
-//          currentWeather.when(data: (data) => Text(data, style:  TextStyle(fontFamily: 23),), error: (Object error, StackTrace stackTrace) {  }, )
-
-          currentWeather.when(
-            data: (data) => Text(
-              data,
-              style: const TextStyle(),
-            ),
-            //error: (Object) => Text('data'),
-            //error: (dynamic) =>  Text('Error ????'),
-            loading: () => const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: CircularProgressIndicator(),
-            ),
-            error: (Object error, StackTrace stackTrace) => Text('Error ??'),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: City.values.length,
-              itemBuilder: (context, index) {
-                final city = City.values[index];
-                final isSelected = city == ref.watch(currentCityProvider);
-
-                return ListTile(
-                  title: Text(
-                    city.toString(),
-                  ),
-                  trailing: isSelected ? const Icon(Icons.check) : null,
-                  onTap: () =>
-                      ref.read(currentCityProvider.notifier,).state = city,
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
+        //Stream Provider Example 4
+        body: Column(
+          children: [],
+        ));
   }
 }
